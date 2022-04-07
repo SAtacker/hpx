@@ -19,6 +19,25 @@
 #include <string>
 #include <utility>
 
+namespace check {
+    template <typename Awaitable, typename = void>
+    constexpr bool has_member_operator_co_await_v = false;
+
+    template <typename Awaitable>
+    constexpr bool has_member_operator_co_await_v<Awaitable,
+        std::void_t<decltype(std::declval<Awaitable>().operator co_await())>> =
+        true;
+
+    template <typename Awaitable, typename = void>
+    constexpr bool has_free_operator_co_await_v = false;
+
+    template <typename Awaitable>
+    constexpr bool has_free_operator_co_await_v<Awaitable,
+        std::void_t<decltype(operator co_await(std::declval<Awaitable>()))>> =
+        true;
+
+}    // namespace check
+
 struct Sender : hpx::future<int>
 {
     auto operator co_await()
@@ -27,6 +46,10 @@ struct Sender : hpx::future<int>
 
         return i;
     }
+};
+
+struct Sender2 : hpx::future<int>
+{
 };
 
 hpx::future<int> async_algo(auto s)
@@ -38,6 +61,11 @@ hpx::future<int> async_algo(auto s)
 
 int hpx_main()
 {
+    assert(check::has_member_operator_co_await_v<Sender>() == true);
+    assert(check::has_member_operator_co_await_v<Sender2>() == false);
+    assert(check::has_free_operator_co_await_v<Sender1>() == false);
+    assert(check::has_free_operator_co_await_v<Sender2>() == false);
+
     auto result =
         hpx::this_thread::experimental::sync_wait(async_algo(Sender{}));
 
