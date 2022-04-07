@@ -37,6 +37,10 @@ if(HPX_WITH_APEX)
   set(subdirs ${subdirs} apex)
 endif()
 
+if(HPX_WITH_CXX_STANDARD GREATER_EQUAL 20)
+  set(subdirs ${subdirs} coroutine)
+endif()
+
 foreach(subdir ${subdirs})
   if(HPX_WITH_TESTS AND HPX_WITH_TESTS_EXAMPLES)
     add_hpx_pseudo_target(tests.examples.${subdir})
