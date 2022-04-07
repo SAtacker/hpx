@@ -4,7 +4,7 @@
 # Distributed under the Boost Software License, Version 1.0. (See accompanying
 # file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 
-set(example_programs coroutine senders_example)
+set(example_programs coroutine senders_example senders_coroutine_1)
 
 foreach(example_program ${example_programs})
   set(sources ${example_program}.cpp)
