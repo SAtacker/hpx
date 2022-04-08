@@ -61,10 +61,16 @@ hpx::future<int> async_algo(auto s)
 
 int hpx_main()
 {
-    assert(check::has_member_operator_co_await_v<Sender>() == true);
-    assert(check::has_member_operator_co_await_v<Sender2>() == false);
-    assert(check::has_free_operator_co_await_v<Sender1>() == false);
-    assert(check::has_free_operator_co_await_v<Sender2>() == false);
+    static_assert(check::has_member_operator_co_await_v<Sender> == true,
+        "It does not have member operator co_await");
+    // static_assert(check::has_member_operator_co_await_v<Sender> == false,
+    //     "It does have have member operator co_await");
+    static_assert(check::has_member_operator_co_await_v<Sender2> == false,
+        "It does have member operator co_await");
+    static_assert(check::has_free_operator_co_await_v<Sender> == false,
+        "It does have free operator co_await");
+    static_assert(check::has_free_operator_co_await_v<Sender2> == false,
+        "It does have free operator co_await");
 
     auto result =
         hpx::this_thread::experimental::sync_wait(async_algo(Sender{}));
