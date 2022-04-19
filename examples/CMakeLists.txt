@@ -27,6 +27,7 @@ set(subdirs
     throttle
     tuplespace
     transpose
+    matrices
 )
 
 if(HPX_WITH_EXAMPLES_HDF5)
