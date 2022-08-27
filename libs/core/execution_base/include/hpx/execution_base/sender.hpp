@@ -181,13 +181,4 @@ namespace hpx { namespace execution { namespace experimental {
     template <typename S>
     using schedule_result_t = hpx::util::invoke_result_t<schedule_t, S>;
 
-    template <typename S, typename R>
-    using connect_result_t = hpx::util::invoke_result_t<connect_t, S, R>;
-
-    namespace detail {
-        // Dummy type used in place of a scheduler if none is given
-        struct no_scheduler
-        {
-        };
-    }    // namespace detail
-}}}      // namespace hpx::execution::experimental
+}}}    // namespace hpx::execution::experimental
