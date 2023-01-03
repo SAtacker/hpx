@@ -13,6 +13,7 @@ set(example_programs
     1d_stencil_4_parallel
     1d_stencil_4_parallel_sr
     1d_stencil_3_sr
+	1d_stencil_4_parallel_any_sender	
 )
 
 if(HPX_WITH_APEX)
