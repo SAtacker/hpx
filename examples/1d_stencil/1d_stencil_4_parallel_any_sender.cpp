@@ -166,22 +166,22 @@ struct stepper
 
             space const& current(U[t % 2]);
             space& next(U[(t + 1) % 2]);
-            hpx::execution::experimental::any_sender<partition_data&>
+            hpx::execution::experimental::any_sender<decltype(current[0])>
                 current_sender;
-            hpx::execution::experimental::any_sender<partition_data&>
+            hpx::execution::experimental::any_sender<decltype(current[0])>
                 current_sender_m;
-            hpx::execution::experimental::any_sender<partition_data&>
+            hpx::execution::experimental::any_sender<decltype(current[0])>
                 current_sender_p;
             hpx::for_each(hpx::execution::par, iterator(0), iterator(np),
                 [&next, &current, &current_sender, &current_sender_m,
-                    &current_sender_p, np](std::size_t i) {
+                    &current_sender_p, np](std::size_t i) mutable {
                     current_sender_m = hpx::execution::experimental::just(
                         current[idx(i - 1, np)]);
                     current_sender_p = hpx::execution::experimental::just(
                         current[idx(i + 1, np)]);
                     current_sender =
                         hpx::execution::experimental::just(current[i]);
-                    current_sender =
+                    auto current_sender_final =
                         hpx::execution::experimental::when_all(current_sender_m,
                             current_sender, current_sender_p) |
                         hpx::execution::experimental::then(
@@ -190,7 +190,8 @@ struct stepper
                                 partition_data const& right) {
                                 next[i] = heat_part(left, middle, right);
                             });
-                    hpx::this_thread::experimental::sync_wait(current_sender);
+                    hpx::this_thread::experimental::sync_wait(
+                        current_sender_final);
                 });
         }
 
