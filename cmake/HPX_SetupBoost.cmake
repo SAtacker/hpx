@@ -96,6 +96,10 @@ if(NOT TARGET hpx_dependencies_boost)
         variant
     )
 
+    if(HPX_WITH_APEX)
+      set(__boost_libraries ${__boost_libraries} assign) # Apex Needs boost/assign
+    endif()
+
     if(HPX_FILESYSTEM_WITH_BOOST_FILESYSTEM_COMPATIBILITY)
       set(__boost_libraries ${__boost_libraries} filesystem)
     endif()
