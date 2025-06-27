@@ -30,3 +30,5 @@ target_link_libraries(topo_mapping_test PRIVATE
     numa
     papi
 )
+
+target_compile_options(topo_mapping_test PRIVATE -g -O0)
