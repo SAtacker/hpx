@@ -10,6 +10,7 @@
 #include <hpx/modules/testing.hpp>
 #include <hpx/thread.hpp>
 
+#include <atomic>
 #include <chrono>
 #include <exception>
 #include <mutex>
@@ -89,12 +90,13 @@ void measure_hit_rate(int numa_node)
     // Allocate counters for up to 6 events
     long long counters[6] = {0};
     check_papi(PAPI_start(EventSet), "start counters");
-
+    std::atomic_ulong accesses_ = 0;
     auto t0 = std::chrono::high_resolution_clock::now();
     hpx::experimental::for_loop(
         hpx::execution::par, 0UL, N, [&](std::size_t i) {
             volatile int x = arr[i];
             (void) x;
+            accesses_ += 1;
         });
     auto t1 = std::chrono::high_resolution_clock::now();
 
@@ -138,7 +140,7 @@ void measure_hit_rate(int numa_node)
     if (has_L3)
         std::cout << ", L3_hit=" << (100.0 * (l3_acc - l3_miss) / l3_acc)
                   << "%";
-    std::cout << ", time_us=" << dur_us << "\n";
+    std::cout << ", time_us=" << dur_us << " actual accesses " << accesses_ << "\n";
 }
 
 // std::thread-based measurement
@@ -190,15 +192,17 @@ void measure_hit_rate_std(int numa_node)
     std::size_t chunk = N / nthr;
     std::vector<std::thread> threads;
     threads.reserve(nthr);
+    std::atomic_ulong accesses_ = 0;
     for (unsigned t = 0; t < nthr; ++t)
     {
         std::size_t s = t * chunk;
         std::size_t e = (t + 1 == nthr ? N : (t + 1) * chunk);
-        threads.emplace_back([=]() {
+        threads.emplace_back([=, &accesses_]() {
             for (std::size_t i = s; i < e; ++i)
             {
                 volatile int x = arr[i];
                 (void) x;
+                accesses_ += 1;
             }
         });
     }
@@ -243,7 +247,7 @@ void measure_hit_rate_std(int numa_node)
         std::cout << ", L2_hit=" << (100.0 * (l2_a - l2_m) / l2_a) << "%";
     if (has_L3)
         std::cout << ", L3_hit=" << (100.0 * (l3_a - l3_m) / l3_a) << "%";
-    std::cout << ", time_us=" << dur_us << "\n";
+    std::cout << ", time_us=" << dur_us << " actual accesses " << accesses_ << "\n";
 }
 
 int hpx_main(hpx::program_options::variables_map& vm)
